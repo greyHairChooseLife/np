@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  database_np:
+    container_name: db_np
+    build:
+      context: ../database/
+      dockerfile: Dockerfile
+      no_cache: true
+    image: "db_np"
+    env_file:
+      - ../database/configs/.env
+    networks:
+      - np-net
+    expose:
+      - 3306
+    restart: unless-stopped
+
+  server_np:
+    depends_on:
+      - database_np
+    container_name: server_np
+    build:
+      context: ../server/
+      dockerfile: Dockerfile
+      no_cache: true
+    image: "server_np"
+    env_file:
+      - ../server/configs/.env
+    networks:
+      - np-net
+    expose:
+      - 3001
+    restart: unless-stopped
+
+  client_np:
+    depends_on:
+      - server_np
+    container_name: client_np
+    build:
+      context: ../client/
+      dockerfile: Dockerfile
+      no_cache: true
+    image: "client_np"
+    env_file:
+      - ../client/configs/.env
+    networks:
+      - np-net
+    expose:
+      - 3000
+    restart: unless-stopped
+
+networks:
+  apps-net:
+    external: true
